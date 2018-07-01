@@ -123,6 +123,8 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
+        int blinkFrequency = Integer.parseInt(getIntent().getStringExtra(MainActivity.BLINK_FREQUENCY));
+        int keyLength = Integer.parseInt(getIntent().getStringExtra(MainActivity.KEY_LENGTH));
         //Get the texture view
         textureView = findViewById(R.id.textureView);
         textViewDisplayPin = findViewById(R.id.displayPinTextView);

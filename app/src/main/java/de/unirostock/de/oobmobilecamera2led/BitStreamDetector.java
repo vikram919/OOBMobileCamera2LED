@@ -13,9 +13,10 @@ public class BitStreamDetector implements BitStreamDetectorCallback {
     private int mCurrentState;
 
     public static final int THRESHOLD = 240;
-    public static final int KEY_LENGTH = 20; /* Number of symbols */
+    public final int keyLength; /* Number of symbols */
     public static final int TIMEOUT = 2000; /* in ms - maximum symbol width */
     public static final int LEARN_LENGTH = 6;
+    private final int blinkTime;
 
     private long mTimestamp1;
     private long mTimestamp2;
@@ -30,7 +31,9 @@ public class BitStreamDetector implements BitStreamDetectorCallback {
 
     private Context ctx = null;
 
-    public BitStreamDetector(Context ct) {
+    public BitStreamDetector(Context ct, int blinkTime, int keyLength) {
+        this.blinkTime = blinkTime;
+        this.keyLength = keyLength;
         mCurrentState = STATE_IDLE;
         mLearnCount = 0;
         mLastLuminosity = -1;
@@ -108,7 +111,7 @@ public class BitStreamDetector implements BitStreamDetectorCallback {
                         try {
                             mLearnedSymbolWidth[0] = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(ctx).getString("settings_flicker_fixed_symbol_width", "200"));
                         } catch (NumberFormatException e) {
-                            mLearnedSymbolWidth[0] = 200;
+                            mLearnedSymbolWidth[0] = blinkTime;
                         }
                     } else {
                         mLearnedSymbolWidth[0] = mLearnedSymbolWidth[LEARN_LENGTH] / (LEARN_LENGTH - 1);
@@ -145,12 +148,12 @@ public class BitStreamDetector implements BitStreamDetectorCallback {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            for (int i = 0; i < KEY_LENGTH; i++) {
+            for (int i = 0; i < keyLength; i++) {
                 condition = mLastLuminosity >= THRESHOLD;
                 if (mBitStreamDetectorKeyReadCallback != null) {
                     key += condition ? "1" : "0";
                 }
-                if (i < KEY_LENGTH - 1) {
+                if (i < keyLength - 1) {
                     try {
                         Thread.sleep(mLearnedSymbolWidth[0]);
                     } catch (InterruptedException e) {
