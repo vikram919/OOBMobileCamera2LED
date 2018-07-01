@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">OOBMobileCamera2LED</string>
+    <string name="add_device">TEST</string>
+    <string name="welcome">Welcome to BACnet/IT Mobile Authenticator</string>
+</resources>
