@@ -13,7 +13,7 @@ public class BitStreamDetector implements BitStreamDetectorCallback {
     private int mCurrentState;
 
     public static final int THRESHOLD = 240;
-    public final int keyLength; /* Number of symbols */
+    private static final int KEY_LENGTH = 20; /* Number of symbols */
     public static final int TIMEOUT = 2000; /* in ms - maximum symbol width */
     public static final int LEARN_LENGTH = 6;
     private final int blinkTime;
@@ -31,9 +31,8 @@ public class BitStreamDetector implements BitStreamDetectorCallback {
 
     private Context ctx = null;
 
-    public BitStreamDetector(Context ct, int blinkTime, int keyLength) {
+    public BitStreamDetector(Context ct, int blinkTime) {
         this.blinkTime = blinkTime;
-        this.keyLength = keyLength;
         mCurrentState = STATE_IDLE;
         mLearnCount = 0;
         mLastLuminosity = -1;
@@ -109,9 +108,9 @@ public class BitStreamDetector implements BitStreamDetectorCallback {
                     boolean fixedWidth = PreferenceManager.getDefaultSharedPreferences(ctx).getBoolean("settings_flicker_fixed_symbols", true);
                     if (fixedWidth) {
                         try {
-                            mLearnedSymbolWidth[0] = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(ctx).getString("settings_flicker_fixed_symbol_width", "200"));
-                        } catch (NumberFormatException e) {
                             mLearnedSymbolWidth[0] = blinkTime;
+                        } catch (NumberFormatException e) {
+                            Log.d("BSD", "error while alloting fixed length");
                         }
                     } else {
                         mLearnedSymbolWidth[0] = mLearnedSymbolWidth[LEARN_LENGTH] / (LEARN_LENGTH - 1);
@@ -148,12 +147,12 @@ public class BitStreamDetector implements BitStreamDetectorCallback {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            for (int i = 0; i < keyLength; i++) {
+            for (int i = 0; i < KEY_LENGTH; i++) {
                 condition = mLastLuminosity >= THRESHOLD;
                 if (mBitStreamDetectorKeyReadCallback != null) {
                     key += condition ? "1" : "0";
                 }
-                if (i < keyLength - 1) {
+                if (i < KEY_LENGTH - 1) {
                     try {
                         Thread.sleep(mLearnedSymbolWidth[0]);
                     } catch (InterruptedException e) {

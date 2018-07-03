@@ -12,20 +12,17 @@ public class MainActivity extends AppCompatActivity {
     protected static String BLINK_FREQUENCY = "blinkFrequency";
     protected static String KEY_LENGTH = "keyLength";
     EditText editTextBlink;
-    EditText editTextKeyLen;
     TextView textView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         editTextBlink = (EditText) findViewById(R.id.edit_text_blink);
-        editTextKeyLen = (EditText) findViewById(R.id.edit_text_keyLength);
         textView = (TextView) findViewById(R.id.errorEntry);
     }
 
     public void startCamera(View view){
         int freq = Integer.parseInt(editTextBlink.getText().toString());
-        int keyLength = Integer.parseInt(editTextKeyLen.getText().toString());
         if(0==freq || freq>200){
             textView.setVisibility(View.VISIBLE);
         } else {
@@ -35,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
             // start camera
             Intent intent = new Intent(this,CameraActivity.class);
             intent.putExtra(BLINK_FREQUENCY, freq);
-            intent.putExtra(KEY_LENGTH, keyLength);
             startActivity(intent);
         }
     }

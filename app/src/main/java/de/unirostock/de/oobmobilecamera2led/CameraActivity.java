@@ -122,14 +122,13 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-
-        int blinkFrequency = Integer.parseInt(getIntent().getStringExtra(MainActivity.BLINK_FREQUENCY));
-        int keyLength = Integer.parseInt(getIntent().getStringExtra(MainActivity.KEY_LENGTH));
+        Log.d("CameraActivity", (""+getIntent().getIntExtra(MainActivity.BLINK_FREQUENCY, 0)));
+        int blinkFrequency = getIntent().getIntExtra(MainActivity.BLINK_FREQUENCY, 0);
         //Get the texture view
         textureView = findViewById(R.id.textureView);
         textViewDisplayPin = findViewById(R.id.displayPinTextView);
         startBackgroundThread();
-        bitStreamDetector = new BitStreamDetector(getApplicationContext());
+        bitStreamDetector = new BitStreamDetector(getApplicationContext(), blinkFrequency);
         bitStreamDetector.setBitStreamDetectorKeyReadCallback(bitStreamDetectorKeyReadCallback);
 
     }
