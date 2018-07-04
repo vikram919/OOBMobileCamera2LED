@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -30,6 +29,7 @@ import android.widget.Toast;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import static java.lang.Math.abs;
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -122,7 +122,7 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-        Log.d("CameraActivity", (""+getIntent().getIntExtra(MainActivity.BLINK_FREQUENCY, 0)));
+        Log.d("CameraActivity", ("" + getIntent().getIntExtra(MainActivity.BLINK_FREQUENCY, 0)));
         int blinkFrequency = getIntent().getIntExtra(MainActivity.BLINK_FREQUENCY, 0);
         //Get the texture view
         textureView = findViewById(R.id.textureView);
@@ -264,16 +264,23 @@ public class CameraActivity extends AppCompatActivity {
                 bb.get(bytes);
                 long luminosity = 0;
                 long c = 0;
-                for (int row = (mPreviewHeight*1)/3; row < (mPreviewHeight*2)/3; row++) {
-                    for (int col = (mPreviewWidth*1)/3; col < (mPreviewWidth *2)/3; col++) {
+                for (int row = mPreviewHeight / 2 - mPreviewHeight / 40; row < mPreviewHeight / 2 + mPreviewHeight / 40; row++) {
+                    for (int col = mPreviewWidth / 2 - mPreviewWidth / 40; col < mPreviewWidth / 2 + mPreviewWidth / 40; col++) {
                         int v = (int) bytes[row * mPreviewWidth + col];
-                        luminosity += v;
+                        luminosity += (v < 0) ? 256 + v : v;
                         c++;
                     }
                 }
-                short relativeLuminosity = (short) (luminosity / c);
-                Log.d("AuthenticatorActivity", "luminosity Value: " + relativeLuminosity);
-                bitStreamDetector.onLuminosityMeasured(relativeLuminosity);
+//                for (int row = (mPreviewHeight*1)/3; row < (mPreviewHeight*2)/3; row++) {
+//                    for (int col = (mPreviewWidth*1)/3; col < (mPreviewWidth *2)/3; col++) {
+//                        int v = (int) bytes[row * mPreviewWidth + col];
+//                        luminosity += (v < 0) ? 256 + v : v;
+//                        c++;
+//                    }
+//                }
+                short avgLuminosity = (short) (luminosity / c);
+                Log.d("AuthenticatorActivity", "luminosity Value: " + avgLuminosity);
+                bitStreamDetector.onLuminosityMeasured(avgLuminosity);
                 image.close();
             }
         }
@@ -302,10 +309,8 @@ public class CameraActivity extends AppCompatActivity {
         public void onKeyRead(String key) {
             Log.d("MobileAuthenticator", "key value reached");
             closeCamera();
-            Intent messageIntent = new Intent(OOB_KEY_SIGNAL);
-            messageIntent.putExtra(OOB_KEY_SIGNAL_PAYLOAD, key);
-            sendBroadcastMessage(messageIntent);
             Intent statusActivity = new Intent(getApplicationContext(), StatusActivity.class);
+            statusActivity.putExtra(OOB_KEY_SIGNAL_PAYLOAD, key);
             startActivity(statusActivity);
         }
 
@@ -324,9 +329,4 @@ public class CameraActivity extends AppCompatActivity {
 
         }
     };
-
-    private void sendBroadcastMessage(Intent messageIntent) {
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
-        localBroadcastManager.sendBroadcast(messageIntent);
-    }
 }

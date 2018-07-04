@@ -1,21 +1,16 @@
 package de.unirostock.de.oobmobilecamera2led;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 public class StatusActivity extends AppCompatActivity {
 
-    private static final String oobKey = "";
+    private static final String oobKey = "1001100110110110011001101100110";
     ImageButton okImage;
     ImageButton notOkImage;
     TextView textView;
@@ -27,27 +22,18 @@ public class StatusActivity extends AppCompatActivity {
         okImage = (ImageButton) findViewById(R.id.ok);
         notOkImage = (ImageButton) findViewById(R.id.notOk);
         textView = (TextView) findViewById(R.id.text);
+        String key = getIntent().getStringExtra(CameraActivity.OOB_KEY_SIGNAL_PAYLOAD);
+        Log.d("StatusActivity", getIntent().getStringExtra(CameraActivity.OOB_KEY_SIGNAL_PAYLOAD));
+        if (key.equals(oobKey)) {
+            okImage.setVisibility(View.VISIBLE);
+            textView.setText("Success!");
+            Log.d("StatusActivity", "Success!");
+        } else {
+            notOkImage.setVisibility(View.VISIBLE);
+            textView.setTextColor(Color.RED);
+            textView.setText("Test Failed!");
+            Log.d("StatusActivity", "Test Failed!");
+        }
 
     }
-
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            /*
-            Listens for error messages if BACnetService fails,
-            starts status intent early inform user about the error.
-            */
-            if (intent.getAction().equals(CameraActivity.OOB_KEY_SIGNAL)){
-                String key = intent.getStringExtra(CameraActivity.OOB_KEY_SIGNAL_PAYLOAD);
-                if(key.equals(oobKey)){
-                    okImage.setVisibility(View.VISIBLE);
-                    textView.setText("Success!");
-                }else{
-                    notOkImage.setVisibility(View.VISIBLE);
-                    textView.setTextColor(Color.RED);
-                    textView.setText("Test Failed!");
-                }
-            }
-        }
-    };
 }

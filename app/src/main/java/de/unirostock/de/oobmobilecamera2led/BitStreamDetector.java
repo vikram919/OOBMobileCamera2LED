@@ -13,7 +13,7 @@ public class BitStreamDetector implements BitStreamDetectorCallback {
     private int mCurrentState;
 
     public static final int THRESHOLD = 240;
-    private static final int KEY_LENGTH = 20; /* Number of symbols */
+    private static final int KEY_LENGTH = 31; /* Number of symbols */
     public static final int TIMEOUT = 2000; /* in ms - maximum symbol width */
     public static final int LEARN_LENGTH = 6;
     private final int blinkTime;
